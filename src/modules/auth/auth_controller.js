@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const authModel = require('./auth_model')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
-const fs = require('fs')
 require('dotenv').config()
 
 module.exports = {
@@ -79,20 +78,37 @@ module.exports = {
       const checkEmailUser = await authModel.getDataConditions({
         user_email: userEmail
       })
+
       if (checkEmailUser[0].user_status === '1') {
         if (checkEmailUser.length > 0) {
+          console.log(checkEmailUser[0])
+          // console.log(true, checkEmailUser[0])
           const checkPassword = bcrypt.compareSync(
             userPassword,
             checkEmailUser[0].user_password
           )
           if (checkPassword) {
-            const payload = checkEmailUser[0]
-            delete payload.user_password
-            const token = jwt.sign({ ...payload }, 'RAHASIA', {
-              expiresIn: '24h'
-            })
-            const result = { ...payload, token }
-            return helper.response(res, 200, 'Success login !', result)
+            if (checkEmailUser[0].user_is_online === 0) {
+              const payload = checkEmailUser[0]
+              delete payload.user_password
+              const token = jwt.sign({ ...payload }, 'RAHASIA', {
+                expiresIn: '1h'
+              })
+
+              await authModel.setUserOnline(checkEmailUser[0].user_id)
+              const result = { ...payload, token }
+
+              return helper.response(res, 200, 'Success login !', result)
+            } else {
+              const payload = checkEmailUser[0]
+              delete payload.user_password
+              const token = jwt.sign({ ...payload }, 'RAHASIA', {
+                expiresIn: '15m'
+              })
+
+              const result = { ...payload, token }
+              return helper.response(res, 200, 'Success login !', result)
+            }
           } else {
             return helper.response(res, 400, 'Wrong Password !')
           }
@@ -107,7 +123,7 @@ module.exports = {
         )
       }
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
     }
   },
@@ -124,116 +140,23 @@ module.exports = {
       return helper.response(res, 408, 'Bad Request', error)
     }
   },
-  getDataUserById: async (req, res) => {
+
+  updateUserOffline: async (req, res) => {
+    console.log(req.params)
     try {
       const { id } = req.params
-      const resultId = await authModel.getDataUserById(id)
-      if (resultId.length > 0) {
-        const result = await authModel.getDataUserById(id)
-        return helper.response(res, 200, 'Success get data', result)
+      if (id.length > 0) {
+        const result = await authModel.setUserOffline(id)
+        return helper.response(res, 200, 'Success Logout !', result)
+      } else {
+        return helper.response(res, 404, 'Data Not Found')
       }
-      return helper.response(res, 404, 'Data not found')
     } catch (error) {
       console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
     }
   },
-  updateProfile: async (req, res) => {
-    try {
-      const { id } = req.params
-      const resultId = await authModel.getDataUserById(id)
-      if (resultId.length > 0) {
-        const { userFirstName, userLastName, userEmail, userPhoneNumber } =
-          req.body
-        switch (userFirstName) {
-          case undefined:
-            return helper.response(
-              res,
-              404,
-              'Please click update profile near info, before update changes'
-            )
-          case '':
-            return helper.response(
-              res,
-              404,
-              'Please click update profile  near info, before update changes'
-            )
-          default:
-            break
-        }
-        switch (userLastName) {
-          case undefined:
-            return helper.response(
-              res,
-              404,
-              'Please click update profile near info, before update changes'
-            )
-          case '':
-            return helper.response(
-              res,
-              404,
-              'Please click update profile  near info, before update changes'
-            )
-          default:
-            break
-        }
-        switch (userPhoneNumber) {
-          case undefined:
-            return helper.response(
-              res,
-              404,
-              'Please click update profile near info, before update changes'
-            )
-          case '':
-            return helper.response(
-              res,
-              404,
-              'Please click update profile  near info, before update changes'
-            )
-          default:
-            break
-        }
-        switch (req.file) {
-          case undefined:
-            return helper.response(
-              res,
-              404,
-              'Update Failed, Please Input Image'
-            )
-          case '':
-            return helper.response(
-              res,
-              404,
-              'Update Failed, Please Input Image'
-            )
-          default:
-            break
-        }
-        const setData = {
-          user_image: req.file ? req.file.filename : '',
-          user_first_name: userFirstName,
-          user_last_name: userLastName,
-          user_email: userEmail,
-          user_phone_number: userPhoneNumber,
-          user_updated_at: new Date(Date.now())
-        }
-        const pathFile = 'src/uploads/' + resultId[0].user_image
-        if (fs.existsSync(pathFile)) {
-          fs.unlink(pathFile, function (err) {
-            if (err) throw err
-            console.log('Oldest Image Success Deleted')
-          })
-        }
-        const result = await authModel.updateData(setData, id)
-        console.log(
-          `Success update movie Id : ${id} and update image : ${result.user_image}\n`
-        )
-        return helper.response(res, 200, 'Success update Movie', result)
-      }
-    } catch (error) {
-      return helper.response(res, 408, 'Bad Request', error)
-    }
-  },
+
   updatePasswordUser: async (req, res) => {
     try {
       const { id } = req.params

@@ -12,7 +12,7 @@ module.exports = {
           (error && error.name === 'JsonWebTokenError') ||
           (error && error.name === 'TokenExpiredError')
         ) {
-          return helper.response(res, 403, error.message)
+          return helper.response(res, 401, error.message)
         } else {
           req.decodeToken = result
           console.log('\nAunthentication is success')
@@ -20,27 +20,31 @@ module.exports = {
         }
       })
     } else {
-      return helper.response(res, 403, 'Please login first!')
-    }
-  },
-  isAdmin: (req, res, next) => {
-    if (req.decodeToken.user_role === 'admin') {
-      console.log(`=====> Welcome Admin ${req.decodeToken.user_name} ! <=====`)
-      next()
-    } else {
-      return helper.response(res, 403, 'Sorry, you are not admin')
+      return helper.response(res, 401, 'Please login first!')
     }
   },
   isUser: (req, res, next) => {
-    if (JSON.stringify(req.decodeToken.user_id) === req.params.id) {
-      console.log(`=====> Welcome User ${req.decodeToken.user_name} ! <=====`)
-      next()
+    let token = req.headers.authorization
+
+    if (token) {
+      token = token.split(' ')[1]
+      jwt.verify(token, 'RAHASIA', (error, result) => {
+        if (
+          (error && error.name === 'JsonWebTokenError') ||
+          (error && error.name === 'TokenExpiredError')
+        ) {
+          return helper.response(res, 402, error.message)
+        } else {
+          req.decodeToken = result
+          if (req.decodeToken.user_id) {
+            next()
+          } else {
+            return helper.response(res, 402, 'Youre not a user !')
+          }
+        }
+      })
     } else {
-      return helper.response(
-        res,
-        403,
-        'Sorry, you can not access this account!'
-      )
+      return helper.response(res, 402, 'Please login first !')
     }
   }
 }
