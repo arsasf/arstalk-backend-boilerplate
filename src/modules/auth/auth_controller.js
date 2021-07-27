@@ -103,7 +103,7 @@ module.exports = {
               const payload = checkEmailUser[0]
               delete payload.user_password
               const token = jwt.sign({ ...payload }, 'RAHASIA', {
-                expiresIn: '15m'
+                expiresIn: '24h'
               })
 
               const result = { ...payload, token }

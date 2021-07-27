@@ -33,41 +33,45 @@ const io = socket(server, {
   },
   path: '/backend3/socket.io'
 })
+let listUserOnline = []
+
 io.on('connection', (socket) => {
-  console.log('Socket.io Connect!')
-  // globalMessage = pesan yg dikirim k semua chat
-  socket.on('globalMessage', (data) => {
-    console.log(data)
-    io.emit('chatMessage', data)
+  console.log('Socket.io Connect !')
+
+  socket.on('connect-server', (id) => {
+    if (!listUserOnline.includes(id)) {
+      listUserOnline.push(id)
+    }
+    io.emit('list-user-online', listUserOnline)
+    socket.join(id)
   })
 
-  socket.on('privateMessage', (data) => {
-    console.log(data)
-    socket.emit('chatMessage', data)
+  socket.on('disconnect-server', ({ id, room }) => {
+    listUserOnline = listUserOnline.filter((element) => element !== id)
+    io.emit('list-user-online', listUserOnline)
+    socket.leave(id)
+    socket.leave(room)
   })
-  // broadcastMessage
-  socket.on('broadcastMessage', (data) => {
-    console.log(data)
-    socket.emit('chatMessage', data)
-  })
-  // =====================================
-  socket.on('joinRoom', (data) => {
-    console.log(data)
-    if (data.oldRoom) {
-      socket.leave(data.oldRoom)
+
+  socket.on('join-room', ({ room, oldRoom }) => {
+    if (oldRoom) {
+      socket.leave(oldRoom)
     }
-    socket.join(data.room)
-    socket.broadcast.to(data.room).emit('chatMessage', {
-      username: 'BOT',
-      message: `${data.username} joined chat `
-    })
+    socket.join(room)
   })
-  socket.on('roomMessage', (data) => {
-    io.to(data.room).emit('chatMessage', data)
+
+  socket.on('send-message', (data) => {
+    io.to(data.room).emit('chat-message', data)
+  })
+
+  socket.on('notif-message', (data) => {
+    socket.broadcast.to(data.receiverId).emit('notif-message', data)
+  })
+
+  socket.on('typing-message', (data) => {
+    socket.broadcast.to(data.room).emit('typing-message', data)
   })
 })
-
-// ====================================
 
 server.listen(port, () => {
   console.log(`Express app is listen on port ${port} !`)
