@@ -7,7 +7,6 @@ module.exports = {
         'SELECT * FROM user JOIN contact ON user.user_id = contact.contact_friend_id WHERE contact.contact_user_id = ? AND user.user_fullname LIKE "%"?"%"',
         [id, search],
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
@@ -19,7 +18,6 @@ module.exports = {
         'SELECT * FROM user JOIN contact ON user.user_id = contact.contact_user_id WHERE contact.contact_user_id = ? AND contact.contact_friend_id= ?',
         [idUser, idFriend],
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
@@ -31,7 +29,6 @@ module.exports = {
         'INSERT INTO contact SET ?',
         setData,
         (error, result) => {
-          console.log(result)
           if (!error) {
             const newResult = {
               id: result.insertId,

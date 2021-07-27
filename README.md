@@ -14,6 +14,9 @@ ArsTalk Chatting Real-Time is a website application to send messages in real-tim
 6. Verification Email
 7. Redis
 8. Real-time Message
+9. Notification Message
+10. Online/Offline Status
+11. Show Typing
 
 ## Built With
 

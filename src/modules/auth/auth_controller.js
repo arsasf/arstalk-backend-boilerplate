@@ -7,8 +7,6 @@ require('dotenv').config()
 
 module.exports = {
   register: async (req, res) => {
-    console.log('register running')
-    console.log(req.body)
     try {
       const { userName, userEmail, userPassword } = req.body
       const salt = bcrypt.genSaltSync(10)
@@ -27,7 +25,7 @@ module.exports = {
         const transporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 587,
-          secure: false, // true for 465, false for other ports
+          secure: false,
           auth: {
             user: process.env.SMTP_EMAIL,
             pass: process.env.SMTP_PASSWORD
@@ -68,7 +66,6 @@ module.exports = {
         )
       }
     } catch (error) {
-      console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
     }
   },
@@ -81,34 +78,19 @@ module.exports = {
 
       if (checkEmailUser[0].user_status === '1') {
         if (checkEmailUser.length > 0) {
-          console.log(checkEmailUser[0])
-          // console.log(true, checkEmailUser[0])
           const checkPassword = bcrypt.compareSync(
             userPassword,
             checkEmailUser[0].user_password
           )
           if (checkPassword) {
-            if (checkEmailUser[0].user_is_online === 0) {
-              const payload = checkEmailUser[0]
-              delete payload.user_password
-              const token = jwt.sign({ ...payload }, 'RAHASIA', {
-                expiresIn: '1h'
-              })
+            const payload = checkEmailUser[0]
+            delete payload.user_password
+            const token = jwt.sign({ ...payload }, 'RAHASIA', {
+              expiresIn: '24h'
+            })
 
-              await authModel.setUserOnline(checkEmailUser[0].user_id)
-              const result = { ...payload, token }
-
-              return helper.response(res, 200, 'Success login !', result)
-            } else {
-              const payload = checkEmailUser[0]
-              delete payload.user_password
-              const token = jwt.sign({ ...payload }, 'RAHASIA', {
-                expiresIn: '24h'
-              })
-
-              const result = { ...payload, token }
-              return helper.response(res, 200, 'Success login !', result)
-            }
+            const result = { ...payload, token }
+            return helper.response(res, 200, 'Success login !', result)
           } else {
             return helper.response(res, 400, 'Wrong Password !')
           }
@@ -123,7 +105,6 @@ module.exports = {
         )
       }
     } catch (error) {
-      console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
     }
   },
@@ -141,57 +122,23 @@ module.exports = {
     }
   },
 
-  updateUserOffline: async (req, res) => {
-    console.log(req.params)
-    try {
-      const { id } = req.params
-      if (id.length > 0) {
-        const result = await authModel.setUserOffline(id)
-        return helper.response(res, 200, 'Success Logout !', result)
-      } else {
-        return helper.response(res, 404, 'Data Not Found')
-      }
-    } catch (error) {
-      console.log(error)
-      return helper.response(res, 408, 'Bad Request', error)
-    }
-  },
-
   updatePasswordUser: async (req, res) => {
     try {
       const { id } = req.params
       const { userNewPassword, userConfirmPassword } = req.body
-      switch (userNewPassword) {
-        case undefined:
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input New Password'
-          )
-        case '':
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input New Password'
-          )
-        default:
-          break
+      if (
+        userNewPassword === undefined ||
+        userNewPassword === null ||
+        userNewPassword === ''
+      ) {
+        return helper.response(res, 400, 'Please input field')
       }
-      switch (userConfirmPassword) {
-        case undefined:
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input Confirm Password'
-          )
-        case '':
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input Confirm Password'
-          )
-        default:
-          break
+      if (
+        userConfirmPassword === undefined ||
+        userConfirmPassword === null ||
+        userConfirmPassword === ''
+      ) {
+        return helper.response(res, 400, 'Please input field')
       }
       const salt = bcrypt.genSaltSync(10)
       const encryptPassword = bcrypt.hashSync(userNewPassword, salt)
@@ -200,8 +147,8 @@ module.exports = {
       if (userNewPassword !== userConfirmPassword) {
         return helper.response(
           res,
-          403,
-          'New Password and Confirm Password are different, please check again!'
+          400,
+          'New Password and Confirm Password different, please check again!'
         )
       } else {
         const setData = {
@@ -209,7 +156,6 @@ module.exports = {
         }
         const result = await authModel.updateData(setData, id)
         delete result.user_password
-        console.log('Sucess Update New Password !')
         return helper.response(res, 200, 'Success Update New Password', result)
       }
     } catch (error) {

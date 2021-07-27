@@ -14,7 +14,6 @@ module.exports = {
   },
 
   getDataCount: (search, sortBy) => {
-    console.log(search, sortBy)
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT COUNT(*) AS total FROM user WHERE user_email LIKE "%"?"%" ORDER BY ${sortBy}`,
@@ -75,7 +74,6 @@ module.exports = {
   },
 
   updateUser: (setData, id) => {
-    console.log(setData)
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE user SET ? WHERE user_id = ?',

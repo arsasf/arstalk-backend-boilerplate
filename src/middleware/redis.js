@@ -11,7 +11,7 @@ module.exports = {
         return helper.response(
           res,
           200,
-          'Success:get data by id',
+          'Success:get data id by redis',
           JSON.parse(result)
         )
       } else {

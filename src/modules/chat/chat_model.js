@@ -7,19 +7,16 @@ module.exports = {
         'SELECT * FROM room_chat JOIN chat ON room_chat.room_chat = chat.room_chat WHERE user_id = ?',
         idUser,
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
     })
   },
   getChatById: (room) => {
-    console.log(room)
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT * FROM chat WHERE room_chat = ${room}`,
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )

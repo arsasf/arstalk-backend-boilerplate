@@ -4,7 +4,6 @@ module.exports = {
   register: (data) => {
     return new Promise((resolve, reject) => {
       connection.query('INSERT INTO user SET?', data, (error, result) => {
-        console.log(error)
         if (!error) {
           const newResult = {
             id: result.insertId,
@@ -36,50 +35,9 @@ module.exports = {
       )
     })
   },
-
-  setUserOnline: (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE user set user_is_online = "1" where user_is_online = "0" AND user_id = ?',
-        id,
-        (error, result) => {
-          if (!error) {
-            const newResult = {
-              id: id
-            }
-            resolve(newResult)
-          } else {
-            reject(new Error(error))
-          }
-        }
-      )
-    })
-  },
-
-  setUserOffline: (id) => {
-    console.log(id)
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE user set user_is_online = "0" where user_is_online = "1" AND user_id = ?',
-        id,
-        (error, result) => {
-          if (!error) {
-            const newResult = {
-              id: id
-            }
-            resolve(newResult)
-          } else {
-            reject(new Error(error))
-          }
-        }
-      )
-    })
-  },
-
   getDataConditions: (data) => {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM user WHERE ?', data, (error, result) => {
-        console.log(error)
         !error ? resolve(result) : reject(new Error(error))
       })
     })

@@ -7,7 +7,6 @@ module.exports = {
         'SELECT * FROM `room_chat` JOIN user ON user.user_id = room_chat.friend_id WHERE room_chat.user_id = ?',
         idUser,
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
@@ -19,7 +18,6 @@ module.exports = {
         'SELECT * FROM room_chat WHERE room_chat.user_id = ? AND room_chat.friend_id = ?',
         [idUser, idFriend],
         (error, result) => {
-          // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
         }
       )

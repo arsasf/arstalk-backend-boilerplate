@@ -2,7 +2,6 @@ const express = require('express')
 const Route = express.Router()
 const chatController = require('./chat_controller')
 const authMiddleware = require('../../middleware/auth')
-// const uploadFile = require('../../middleware/uploads')
 const redisMiddleware = require('../../middleware/redis')
 const { geHistoryById } = require('./chat_controller')
 

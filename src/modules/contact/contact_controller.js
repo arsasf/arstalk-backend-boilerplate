@@ -17,7 +17,6 @@ module.exports = {
         return helper.response(res, 404, 'user not found !')
       }
     } catch (error) {
-      console.log(error)
       return helper.response(res, 400, 'Bad Request', error)
     }
   },
@@ -28,7 +27,6 @@ module.exports = {
       const idUser = req.params.id
       const idFriend = req.body.contactFriendId
       const checkFriend = await contactModel.getContactById(idUser, idFriend)
-      console.log(checkFriend)
       if (checkFriend.length > 0) {
         return helper.response(res, 408, 'Contact was added')
       } else {
@@ -37,16 +35,12 @@ module.exports = {
             contact_user_id: id,
             contact_friend_id: contactFriendId
           }
-          console.log(true)
           const result = await contactModel.addContact(setData)
           return helper.response(res, 200, 'Succes add contact!', result)
         }
-        console.log(false)
         return helper.response(res, 408, 'Can not added contact with same id!')
       }
     } catch (error) {
-      console.log(false)
-      console.log(error)
       return helper.response(res, 400, 'Bad Request', error)
     }
   },
@@ -55,10 +49,8 @@ module.exports = {
       const idUser = req.params.id
       const { idFriend } = req.query
       const resultId = await contactModel.getContactById(idUser, idFriend)
-      console.log(resultId)
       if (resultId.length > 0) {
         const result = await contactModel.deleteContact(idUser, idFriend)
-        console.log(`Success Delete contact Id : ${idFriend} \n`)
         return helper.response(
           res,
           200,

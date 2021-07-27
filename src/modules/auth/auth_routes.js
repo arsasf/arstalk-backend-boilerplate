@@ -1,9 +1,6 @@
 const express = require('express')
-// const { isUser } = require('../../middleware/auth')
 const Route = express.Router()
 const authMiddleware = require('../../middleware/auth')
-// const uploadFile = require('../../middleware/uploads')
-
 const { clearDataUserRedis } = require('../../middleware/redis')
 const {
   register,

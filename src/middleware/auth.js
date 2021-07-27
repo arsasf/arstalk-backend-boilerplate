@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken')
 
 module.exports = {
   authentication: (req, res, next) => {
-    // console.log('PROSES AUTHENTICATON MIDDLEWARE RUNNING')
     let token = req.headers.authorization
     if (token) {
       token = token.split(' ')[1]

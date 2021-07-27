@@ -10,7 +10,6 @@ Route.post(
   redisMiddleware.clearDataRoomChatRedis,
   roomChatController.createRoom
 )
-// Route.delete('/:id', roomChatController.deleteroomChat)
 Route.get(
   '/:id',
   authMiddleware.authentication,
