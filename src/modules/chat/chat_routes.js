@@ -7,7 +7,7 @@ const redisMiddleware = require('../../middleware/redis')
 const { geHistoryById } = require('./chat_controller')
 
 Route.post(
-  '/:senderId',
+  '/',
   authMiddleware.authentication,
   redisMiddleware.clearDataChatRedis,
   chatController.createChat

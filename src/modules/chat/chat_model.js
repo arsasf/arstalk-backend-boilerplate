@@ -13,11 +13,11 @@ module.exports = {
       )
     })
   },
-  getChatById: (id, room) => {
+  getChatById: (room) => {
+    console.log(room)
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM chat WHERE sender_id = ? AND room_chat = ?',
-        [id, room],
+        `SELECT * FROM chat WHERE room_chat = ${room}`,
         (error, result) => {
           // console.log(error)
           !error ? resolve(result) : reject(new Error(error))
