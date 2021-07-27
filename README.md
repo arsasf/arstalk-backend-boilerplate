@@ -52,10 +52,12 @@ ArsTalk Chatting Real-Time is a website application to send messages in real-tim
 Open .env file on your favorite code editor, and copy paste this code below :
 
 ```
-DB_HOST='localhost'                 //Database Host
-DB_USER='root'                      //Database Username
-DB_PASS=""                          //Database Password
-DB_NAME=''                          //Database Name
+DB_HOST='localhost'                 //YOUR DATABASE HOST
+DB_USER='root'                      //YOUR DATABASE USERNAME
+DB_PASS=""                          //YOUR DATABASE PASSWORD
+DB_NAME=''                          //YOUR DATABASE NAME
+SMTP_EMAIL=                         //YOUR EMAIL ADDRESS
+SMTP_PASSWORD=                      //YOUR EMAIL PASSWORD
 ```
 
 ## License
